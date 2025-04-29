@@ -3,10 +3,10 @@
 public class Transfer
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
-    public Guid FromAccountId { get; private set; }
-    public Guid ToAccountId { get; private set; }
-    public decimal Amount { get; private set; }
+    public Guid FromAccountId { get; set; }
+    public Guid ToAccountId { get; set; }
+    public decimal Amount { get; set; }
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-    public Account FromAccount { get; private set; } = null!;
-    public Account ToAccount { get; private set; } = null!;
+    public Account FromAccount { get; set; } = null!;
+    public Account ToAccount { get; set; } = null!;
 }

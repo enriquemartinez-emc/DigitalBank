@@ -30,15 +30,15 @@ public class Account
         return Result<Account>.Success(account);
     }
 
-    public Result UpdateBalance(decimal amount, string transactionType)
+    public Result UpdateBalance(decimal amount, TransactionType transactionType)
     {
         if (amount <= 0)
             return Result.Failure(Errors.Account.InvalidAmount());
 
         Balance = transactionType switch
         {
-            "Deposit" => Balance + amount,
-            "Withdrawal" => Balance >= amount ? Balance - amount : throw new InvalidOperationException("Insufficient funds"),
+            TransactionType.Deposit => Balance + amount,
+            TransactionType.Withdrawal => Balance >= amount ? Balance - amount : throw new InvalidOperationException("Insufficient funds"),
             _ => throw new ArgumentException("Invalid transaction type")
         };
 
