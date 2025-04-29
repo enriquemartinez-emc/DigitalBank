@@ -1,11 +1,26 @@
 ﻿using DigitalBank.Domain.Common;
 using DigitalBank.Domain.Entities;
 using DigitalBank.Infrastructure.Persistence;
+using FluentValidation;
 using MediatR;
 
 namespace DigitalBank.Application.Features.Transfers;
 
 public record CreateTransferCommand(Guid FromAccountId, Guid ToAccountId, decimal Amount) : IRequest<Result<Guid>>;
+
+public class CreateTransferCommandValidator : AbstractValidator<CreateTransferCommand>
+{
+    public CreateTransferCommandValidator()
+    {
+        RuleFor(x => x.FromAccountId)
+            .NotEmpty();
+        RuleFor(x => x.ToAccountId)
+            .NotEmpty()
+            .NotEqual(x => x.FromAccountId);
+        RuleFor(x => x.Amount)
+            .GreaterThan(0);
+    }
+}
 
 public class CreateTransferCommandHandler : IRequestHandler<CreateTransferCommand, Result<Guid>>
 {
