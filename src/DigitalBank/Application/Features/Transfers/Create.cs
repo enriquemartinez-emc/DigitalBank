@@ -35,15 +35,15 @@ public class CreateTransferCommandHandler : IRequestHandler<CreateTransferComman
         var toAccount = await _context.Accounts.FindAsync([request.ToAccountId], cancellationToken);
 
         if (fromAccount is null || toAccount is null)
-            return Result<Guid>.Failure<Guid>(Errors.Account.NotFound());
+            return Result.Failure<Guid>(Errors.Account.NotFound());
 
         var withdrawalResult = fromAccount.UpdateBalance(request.Amount, TransactionType.Withdrawal);
         if (!withdrawalResult.IsSuccess)
-            return Result<Guid>.Failure<Guid>(withdrawalResult.Error!);
+            return Result.Failure<Guid>(withdrawalResult.Error!);
 
         var depositResult = toAccount.UpdateBalance(request.Amount, TransactionType.Deposit);
         if (!depositResult.IsSuccess)
-            return Result<Guid>.Failure<Guid>(depositResult.Error!);
+            return Result.Failure<Guid>(depositResult.Error!);
 
         var transfer = new Transfer
         {
@@ -55,6 +55,6 @@ public class CreateTransferCommandHandler : IRequestHandler<CreateTransferComman
         _context.Transfers.Add(transfer);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result<Guid>.Success(transfer.Id);
+        return Result.Success(transfer.Id);
     }
 }

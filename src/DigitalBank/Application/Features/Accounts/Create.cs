@@ -31,15 +31,15 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
     {
         var customer = await _context.Customers.FindAsync([request.CustomerId], cancellationToken);
         if (customer is null)
-            return Result<Guid>.Failure<Guid>(Errors.Account.NotFound());
+            return Result.Failure<Guid>(Errors.Account.NotFound());
 
         var accountResult = Account.Create(request.AccountNumber, request.CustomerId, request.InitialBalance);
         if (!accountResult.IsSuccess)
-            return Result<Guid>.Failure<Guid>(accountResult.Error!);
+            return Result.Failure<Guid>(accountResult.Error!);
 
         _context.Accounts.Add(accountResult.Value!);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result<Guid>.Success(accountResult.Value!.Id);
+        return Result.Success(accountResult.Value!.Id);
     }
 }
