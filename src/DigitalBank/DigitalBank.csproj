@@ -10,4 +10,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="C:\dev\projects\DigitalBank\src\DigitalBank\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\dev\projects\DigitalBank\src\DigitalBank\.editorconfig" />
+  </ItemGroup>
+
 </Project>
