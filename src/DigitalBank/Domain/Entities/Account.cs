@@ -15,10 +15,10 @@ public class Account
     public static Result<Account> Create(string accountNumber, Guid customerId, decimal initialBalance = 0)
     {
         if (string.IsNullOrWhiteSpace(accountNumber))
-            return Result<Account>.Failure<Account>(Errors.Account.InvalidAccountNumber);
+            return Result.Failure<Account>(Errors.Account.InvalidAccountNumber);
 
         if (initialBalance < 0)
-            return Result<Account>.Failure<Account>(Errors.Account.InvalidInitialBalance);
+            return Result.Failure<Account>(Errors.Account.InvalidInitialBalance);
 
         var account = new Account
         {
@@ -27,7 +27,7 @@ public class Account
             Balance = initialBalance
         };
 
-        return Result<Account>.Success(account);
+        return Result.Success(account);
     }
 
     public Result UpdateBalance(decimal amount, TransactionType transactionType)

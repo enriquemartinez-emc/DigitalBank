@@ -12,12 +12,7 @@ public class AccountIntegrationTests : IntegrationTestBase
     public async Task CreateAccount_ValidInput_CreatesAccountAndReturnsId()
     {
         // Arrange
-        var customer = new Customer
-        {
-            FirstName = "Jane",
-            LastName = "Doe",
-            Email = "jane.doe@example.com"
-        };
+        var customer = Customer.Create("Jane", "Doe", "jane.doe@example.com").Value!;
 
         using (var dbContext = await CreateDbContextAsync())
         {
@@ -72,17 +67,8 @@ public class AccountIntegrationTests : IntegrationTestBase
     [Fact]
     public async Task GetAccountBalance_ValidAccountId_ReturnsBalance()
     {
-        // Arrange
-        var customer = new Customer
-        {
-            FirstName = "John",
-            LastName = "Doe",
-            Email = "john.doe@example.com"
-        };
-
-        var accountResult = Account.Create("12345678901234", customer.Id, 500m);
-        Assert.True(accountResult.IsSuccess);
-        var account = accountResult.Value!;
+        var customer = Customer.Create("John", "Doe", "john.doe@example.com").Value!;
+        var account = Account.Create("12345678901234", customer.Id, 500m).Value!;
 
         using (var dbContext = await CreateDbContextAsync())
         {
