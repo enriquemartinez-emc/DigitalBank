@@ -4,16 +4,8 @@ public class Card
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
     public Guid AccountId { get; private set; }
-    public string CardNumber { get; private set; }
-    public string ExpiryDate { get; private set; }
-    public string CVV { get; private set; }
+    public required string CardNumber { get; set; }
+    public required string ExpiryDate { get; set; }
+    public required string CVV { get; set; }
     public Account Account { get; private set; } = null!;
-
-    public Card(Guid accountId, string cardNumber, string expiryDate, string cvv)
-    {
-        AccountId = accountId;
-        CardNumber = cardNumber;
-        ExpiryDate = expiryDate;
-        CVV = cvv;
-    }
 }
