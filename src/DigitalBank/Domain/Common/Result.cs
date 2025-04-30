@@ -1,4 +1,6 @@
-﻿namespace DigitalBank.Domain.Common;
+﻿using DigitalBank.Domain.Common.Errors;
+
+namespace DigitalBank.Domain.Common;
 
 public record Result
 {

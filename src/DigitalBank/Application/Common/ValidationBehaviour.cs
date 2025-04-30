@@ -1,4 +1,5 @@
 ﻿using DigitalBank.Domain.Common;
+using DigitalBank.Domain.Common.Errors;
 using FluentValidation;
 using MediatR;
 
@@ -17,7 +18,7 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
         CancellationToken cancellationToken)
     {
         if (!_validators.Any())
-            return await next();
+            return await next(cancellationToken);
 
         var context = new ValidationContext<TRequest>(request);
         var validationResults = await Task.WhenAll(
@@ -34,6 +35,6 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
             return (TResponse)Result.Failure(error);
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

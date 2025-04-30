@@ -1,4 +1,5 @@
 ﻿using DigitalBank.Domain.Common;
+using DigitalBank.Domain.Common.Errors;
 using DigitalBank.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

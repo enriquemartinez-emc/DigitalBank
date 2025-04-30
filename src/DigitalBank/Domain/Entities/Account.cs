@@ -1,4 +1,5 @@
 ﻿using DigitalBank.Domain.Common;
+using DigitalBank.Domain.Common.Errors;
 
 namespace DigitalBank.Domain.Entities;
 
@@ -35,13 +36,26 @@ public class Account
         if (amount <= 0)
             return Result.Failure(Errors.Account.InvalidAmount);
 
-        Balance = transactionType switch
+        return transactionType switch
         {
-            TransactionType.Deposit => Balance + amount,
-            TransactionType.Withdrawal => Balance >= amount ? Balance - amount : throw new InvalidOperationException("Insufficient funds"),
-            _ => throw new ArgumentException("Invalid transaction type")
+            TransactionType.Deposit => ApplyDeposit(amount),
+            TransactionType.Withdrawal => ApplyWithdrawal(amount),
+            _ => Result.Failure(Errors.Account.InvalidTransactionType)
         };
+    }
 
+    private Result ApplyDeposit(decimal amount)
+    {
+        Balance += amount;
+        return Result.Success();
+    }
+
+    private Result ApplyWithdrawal(decimal amount)
+    {
+        if (Balance < amount)
+            return Result.Failure(Errors.Account.InsuficientFunds);
+
+        Balance -= amount;
         return Result.Success();
     }
 }

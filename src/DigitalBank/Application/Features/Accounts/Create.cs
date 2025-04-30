@@ -1,4 +1,5 @@
 ﻿using DigitalBank.Domain.Common;
+using DigitalBank.Domain.Common.Errors;
 using DigitalBank.Domain.Entities;
 using DigitalBank.Infrastructure.Persistence;
 using FluentValidation;

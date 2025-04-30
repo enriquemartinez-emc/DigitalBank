@@ -1,4 +1,5 @@
 ﻿using DigitalBank.Domain.Common;
+using DigitalBank.Domain.Common.Errors;
 using System.Text.RegularExpressions;
 
 namespace DigitalBank.Domain.Entities;

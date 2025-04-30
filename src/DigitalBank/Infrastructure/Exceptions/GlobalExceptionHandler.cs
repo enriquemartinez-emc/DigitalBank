@@ -1,4 +1,4 @@
-﻿using DigitalBank.Domain.Common;
+﻿using DigitalBank.Domain.Common.Errors;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace DigitalBank.Infrastructure.Exceptions;
