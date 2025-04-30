@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace DigitalBank.Infrastructure.Persistence
+namespace DigitalBank.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DigitalBankDbContext))]
     partial class DigitalBankDbContextModelSnapshot : ModelSnapshot

@@ -33,7 +33,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
     {
         var customer = await _context.Customers.FindAsync([request.CustomerId], cancellationToken);
         if (customer is null)
-            return Result.Failure<Guid>(Errors.Account.NotFound());
+            return Result.Failure<Guid>(Errors.Account.NotFound);
 
         var accountResult = Account.Create(request.AccountNumber, request.CustomerId, request.InitialBalance);
         if (!accountResult.IsSuccess)

@@ -5,18 +5,18 @@ using Microsoft.AspNetCore.Mvc;
 namespace DigitalBank.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/accounts")]
 public class AccountsController : ControllerBase
 {
-    private readonly IMediator _mediator;
-    public AccountsController(IMediator mediator) => _mediator = mediator;
+    private readonly ISender _sender;
+    public AccountsController(ISender sender) => _sender = sender;
 
     [HttpPost]
     public async Task<IActionResult> CreateAccount(
         CreateAccountCommand command,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await _sender.Send(command, cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : BadRequest(result.Error!.ToProblemDetails(StatusCodes.Status400BadRequest));
@@ -27,7 +27,7 @@ public class AccountsController : ControllerBase
         Guid accountId,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetAccountBalanceQuery(accountId), cancellationToken);
+        var result = await _sender.Send(new GetAccountBalanceQuery(accountId), cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : BadRequest(result.Error!.ToProblemDetails(StatusCodes.Status400BadRequest));

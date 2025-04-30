@@ -21,7 +21,7 @@ public class GetAccountBalanceQueryHandler : IRequestHandler<GetAccountBalanceQu
             .FirstOrDefaultAsync(a => a.Id == request.AccountId, cancellationToken);
 
         if (account is null)
-            return Result.Failure<decimal>(Errors.Account.NotFound());
+            return Result.Failure<decimal>(Errors.Account.NotFound);
 
         return Result.Success(account.Balance);
     }
