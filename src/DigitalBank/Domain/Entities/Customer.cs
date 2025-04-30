@@ -9,6 +9,7 @@ public class Customer
     public string FirstName { get; private set; } = string.Empty;
     public string LastName { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
+    public List<Account> Accounts { get; private set; } = [];
 
     private Customer() { } // For EF Core
 

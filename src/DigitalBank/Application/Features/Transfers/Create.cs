@@ -35,7 +35,7 @@ public class CreateTransferCommandHandler : IRequestHandler<CreateTransferComman
         var toAccount = await _context.Accounts.FindAsync([request.ToAccountId], cancellationToken);
 
         if (fromAccount is null || toAccount is null)
-            return Result.Failure<Guid>(Errors.Account.NotFound());
+            return Result.Failure<Guid>(Errors.Account.NotFound);
 
         var withdrawalResult = fromAccount.UpdateBalance(request.Amount, TransactionType.Withdrawal);
         if (!withdrawalResult.IsSuccess)
