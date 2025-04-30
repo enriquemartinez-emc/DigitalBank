@@ -3,15 +3,8 @@
 public class Customer
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public string Email { get; private set; }
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
+    public required string Email { get; set; }
     public List<Account> Accounts { get; private set; } = [];
-
-    public Customer(string firstName, string lastName, string email)
-    {
-        FirstName = firstName;
-        LastName = lastName;
-        Email = email;
-    }
 }

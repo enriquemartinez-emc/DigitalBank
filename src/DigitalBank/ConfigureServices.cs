@@ -14,7 +14,6 @@ public static class ConfigureServices
         builder.Services.AddControllers();
         builder.AddSwagger();
         builder.AddDatabase();
-
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
         builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
