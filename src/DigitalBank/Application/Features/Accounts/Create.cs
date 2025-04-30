@@ -27,7 +27,9 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
     private readonly DigitalBankDbContext _context;
     public CreateAccountCommandHandler(DigitalBankDbContext context) => _context = context;
 
-    public async Task<Result<Guid>> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(
+        CreateAccountCommand request,
+        CancellationToken cancellationToken)
     {
         var customer = await _context.Customers.FindAsync([request.CustomerId], cancellationToken);
         if (customer is null)
