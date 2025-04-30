@@ -16,7 +16,7 @@ public class CardConfiguration : IEntityTypeConfiguration<Card>
         builder.Property(c => c.ExpiryDate).IsRequired();
         builder.Property(c => c.IsActive).IsRequired();
 
-        builder.HasOne<Account>().WithMany().HasForeignKey(c => c.AccountId);
+        builder.HasOne<Account>().WithMany(a => a.Cards).HasForeignKey(c => c.AccountId);
         builder.HasIndex(c => c.CardNumber).IsUnique();
     }
 }

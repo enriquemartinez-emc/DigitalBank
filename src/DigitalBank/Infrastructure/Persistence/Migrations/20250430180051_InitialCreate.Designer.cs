@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DigitalBank.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DigitalBankDbContext))]
-    [Migration("20250430015735_InitialCreate")]
+    [Migration("20250430180051_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -59,21 +59,31 @@ namespace DigitalBank.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CVV")
+                    b.Property<string>("CardHolderName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("CardNumber")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
-                    b.Property<string>("ExpiryDate")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("CardType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("CardNumber")
+                        .IsUnique();
 
                     b.ToTable("Cards");
                 });
@@ -100,6 +110,9 @@ namespace DigitalBank.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Customers");
                 });
@@ -169,13 +182,11 @@ namespace DigitalBank.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("DigitalBank.Domain.Entities.Card", b =>
                 {
-                    b.HasOne("DigitalBank.Domain.Entities.Account", "Account")
+                    b.HasOne("DigitalBank.Domain.Entities.Account", null)
                         .WithMany("Cards")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("DigitalBank.Domain.Entities.Transaction", b =>

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -50,9 +51,11 @@ namespace DigitalBank.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     AccountId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CardNumber = table.Column<string>(type: "text", nullable: false),
-                    ExpiryDate = table.Column<string>(type: "text", nullable: false),
-                    CVV = table.Column<string>(type: "text", nullable: false)
+                    CardType = table.Column<int>(type: "integer", nullable: false),
+                    CardHolderName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CardNumber = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -122,6 +125,18 @@ namespace DigitalBank.Infrastructure.Persistence.Migrations
                 name: "IX_Cards_AccountId",
                 table: "Cards",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_CardNumber",
+                table: "Cards",
+                column: "CardNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_Email",
+                table: "Customers",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_AccountId",
