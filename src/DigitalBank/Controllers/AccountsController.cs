@@ -5,31 +5,50 @@ using Microsoft.AspNetCore.Mvc;
 namespace DigitalBank.Controllers;
 
 [ApiController]
-[Route("api/accounts")]
+[Route("api/customers")]
 public class AccountsController : ControllerBase
 {
     private readonly ISender _sender;
     public AccountsController(ISender sender) => _sender = sender;
 
-    [HttpPost]
+    [HttpPost("{customerId}/accounts")]
     public async Task<IActionResult> CreateAccount(
-        CreateAccountCommand command,
+        Guid customerId,
+        AccountData data,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(command, cancellationToken);
+        var result = await _sender.Send(
+            new CreateAccountCommand(data, customerId),
+            cancellationToken);
+
         return result.IsSuccess
             ? Ok(result.Value)
             : BadRequest(result.Error!.ToProblemDetails(StatusCodes.Status400BadRequest));
     }
 
-    [HttpGet("{accountId}/balance")]
+    [HttpGet("{customerId}/accounts/{accountId}/balance")]
     public async Task<IActionResult> GetBalance(
+        Guid customerId,
         Guid accountId,
         CancellationToken cancellationToken)
     {
-        var result = await _sender.Send(new GetAccountBalanceQuery(accountId), cancellationToken);
+        var result = await _sender.Send(
+            new GetAccountBalanceQuery(accountId, customerId),
+            cancellationToken);
+
         return result.IsSuccess
             ? Ok(result.Value)
-            : BadRequest(result.Error!.ToProblemDetails(StatusCodes.Status400BadRequest));
+            : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));
+    }
+
+    [HttpGet("{customerId}/accounts")]
+    public async Task<IActionResult> GetAccountsByCustomer(
+        Guid customerId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetAccountsByCustomerQuery(customerId), cancellationToken);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));
     }
 }

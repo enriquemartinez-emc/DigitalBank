@@ -13,7 +13,10 @@ public class Account
     public List<Transaction> Transactions { get; private set; } = [];
     public List<Card> Cards { get; private set; } = [];
 
-    public static Result<Account> Create(string accountNumber, Guid customerId, decimal initialBalance = 0)
+    public static Result<Account> Create(
+        string accountNumber,
+        Guid customerId,
+        decimal initialBalance = 0)
     {
         if (string.IsNullOrWhiteSpace(accountNumber))
             return Result.Failure<Account>(Errors.Account.InvalidAccountNumber);

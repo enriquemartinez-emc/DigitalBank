@@ -5,7 +5,10 @@ namespace DigitalBank.Infrastructure.Exceptions;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
-    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
+    public async ValueTask<bool> TryHandleAsync(
+        HttpContext httpContext,
+        Exception exception,
+        CancellationToken cancellationToken)
     {
         var error = exception switch
         {
