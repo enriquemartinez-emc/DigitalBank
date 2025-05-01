@@ -20,10 +20,13 @@ public class AccountIntegrationTests : IntegrationTestBase
             await dbContext.SaveChangesAsync();
         }
 
-        var command = new CreateAccountCommand(
+        var accountData = new AccountData(
             AccountNumber: "12345678901234",
-            CustomerId: customer.Id,
             InitialBalance: 1000m);
+
+        var command = new CreateAccountCommand(
+            AccountData: accountData,
+            CustomerId: customer.Id);
 
         // Act
         using var scope = ServiceProvider.CreateScope();
@@ -39,19 +42,22 @@ public class AccountIntegrationTests : IntegrationTestBase
             .FirstOrDefaultAsync(a => a.Id == result.Value);
 
         Assert.NotNull(account);
-        Assert.Equal(command.AccountNumber, account.AccountNumber);
+        Assert.Equal(command.AccountData.AccountNumber, account.AccountNumber);
         Assert.Equal(command.CustomerId, account.CustomerId);
-        Assert.Equal(command.InitialBalance, account.Balance);
+        Assert.Equal(command.AccountData.InitialBalance, account.Balance);
     }
 
     [Fact]
     public async Task CreateAccount_InvalidCustomerId_ReturnsFailure()
     {
         // Arrange
-        var command = new CreateAccountCommand(
+        var accountData = new AccountData(
             AccountNumber: "12345678901234",
-            CustomerId: Guid.NewGuid(), // Non-existent customer
             InitialBalance: 1000m);
+
+        var command = new CreateAccountCommand(
+            AccountData: accountData,
+            CustomerId: Guid.NewGuid()); // non-existent customer ID
 
         // Act
         using var scope = ServiceProvider.CreateScope();
@@ -77,7 +83,7 @@ public class AccountIntegrationTests : IntegrationTestBase
             await dbContext.SaveChangesAsync();
         }
 
-        var query = new GetAccountBalanceQuery(account.Id);
+        var query = new GetAccountBalanceQuery(account.Id, customer.Id);
 
         // Act
         using var scope = ServiceProvider.CreateScope();
@@ -93,7 +99,7 @@ public class AccountIntegrationTests : IntegrationTestBase
     public async Task GetAccountBalance_InvalidAccountId_ReturnsFailure()
     {
         // Arrange
-        var query = new GetAccountBalanceQuery(Guid.NewGuid());
+        var query = new GetAccountBalanceQuery(Guid.NewGuid(), Guid.NewGuid());
 
         // Act
         using var scope = ServiceProvider.CreateScope();
