@@ -11,9 +11,15 @@ public static class ConfigureServices
 {
     public static void AddServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddControllers();
+        builder.AddDigitalBank();
         builder.AddSwagger();
+        builder.AddCors();
         builder.AddDatabase();
+    }
+
+    private static void AddDigitalBank(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddControllers();
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
         builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
@@ -28,6 +34,19 @@ public static class ConfigureServices
         {
             options.CustomSchemaIds(type => type.FullName?.Replace('+', '.'));
             options.InferSecuritySchemes();
+        });
+    }
+
+    private static void AddCors(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:4200")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
         });
     }
 
