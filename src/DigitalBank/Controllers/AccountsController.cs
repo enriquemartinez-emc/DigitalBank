@@ -11,10 +11,21 @@ public class AccountsController : ControllerBase
     private readonly ISender _sender;
     public AccountsController(ISender sender) => _sender = sender;
 
+    [HttpGet("{customerId}/accounts")]
+    public async Task<IActionResult> GetAccountsByCustomer(
+    Guid customerId,
+    CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetAccountsByCustomerQuery(customerId), cancellationToken);
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));
+    }
+
     [HttpPost("{customerId}/accounts")]
     public async Task<IActionResult> CreateAccount(
         Guid customerId,
-        AccountData data,
+        [FromBody] AccountData data,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(
@@ -36,17 +47,6 @@ public class AccountsController : ControllerBase
             new GetAccountBalanceQuery(accountId, customerId),
             cancellationToken);
 
-        return result.IsSuccess
-            ? Ok(result.Value)
-            : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));
-    }
-
-    [HttpGet("{customerId}/accounts")]
-    public async Task<IActionResult> GetAccountsByCustomer(
-        Guid customerId,
-        CancellationToken cancellationToken)
-    {
-        var result = await _sender.Send(new GetAccountsByCustomerQuery(customerId), cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));

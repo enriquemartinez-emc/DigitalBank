@@ -14,8 +14,8 @@ public static class ConfigureApplication
         }
 
         app.UseCors("AllowFrontend");
-        app.UseHttpsRedirection();
-        app.UseAuthorization();
+        // app.UseHttpsRedirection();
+        // app.UseAuthorization();
         app.MapControllers();
         app.EnsureDatabaseCreated();
     }

@@ -10,6 +10,7 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
     where TResponse : Result
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
+
     public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators) => _validators = validators;
 
     public async Task<TResponse> Handle(
@@ -32,6 +33,16 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
         if (failures.Count != 0)
         {
             var error = new Error("Validation.Failed", string.Join("; ", failures.Select(f => f.ErrorMessage)));
+
+            // Handle both Result and Result<T> cases
+            if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
+            {
+                var genericArgument = typeof(TResponse).GetGenericArguments()[0];
+                var failureMethod = typeof(Result).GetMethod(nameof(Result.Failure), 1, [typeof(Error)])!
+                    .MakeGenericMethod(genericArgument);
+                return (TResponse)failureMethod.Invoke(null, [error])!;
+            }
+
             return (TResponse)Result.Failure(error);
         }
 
