@@ -37,16 +37,27 @@ public class AccountsController : ControllerBase
             : BadRequest(result.Error!.ToProblemDetails(StatusCodes.Status400BadRequest));
     }
 
-    [HttpGet("{customerId}/accounts/{accountId}/balance")]
-    public async Task<IActionResult> GetBalance(
+    [HttpGet("{customerId}/accounts/{accountId}")]
+    public async Task<IActionResult> GetAccount(
         Guid customerId,
         Guid accountId,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(
-            new GetAccountBalanceQuery(accountId, customerId),
+            new GetAccountQuery(accountId, customerId),
             cancellationToken);
 
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));
+    }
+
+    [HttpGet("accounts/batch")]
+    public async Task<IActionResult> GetAccountsByIds(
+        [FromQuery] Guid[] accountIds,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetAccountsByIdsQuery(accountIds), cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : NotFound(result.Error!.ToProblemDetails(StatusCodes.Status404NotFound));
