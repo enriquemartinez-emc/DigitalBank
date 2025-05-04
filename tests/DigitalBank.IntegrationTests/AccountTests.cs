@@ -1,4 +1,5 @@
 using DigitalBank.Application.Features.Accounts;
+using DigitalBank.Domain.Common;
 using DigitalBank.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,9 +30,7 @@ public class AccountIntegrationTests : IntegrationTestBase
             CustomerId: customer.Id);
 
         // Act
-        using var scope = ServiceProvider.CreateScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var result = await mediator.Send(command);
+        var result = await SendRequestAsync<CreateAccountCommand, Guid>(command);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -60,9 +59,7 @@ public class AccountIntegrationTests : IntegrationTestBase
             CustomerId: Guid.NewGuid()); // non-existent customer ID
 
         // Act
-        using var scope = ServiceProvider.CreateScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var result = await mediator.Send(command);
+        var result = await SendRequestAsync<CreateAccountCommand, Guid>(command);
 
         // Assert
         Assert.False(result.IsSuccess);
@@ -71,8 +68,9 @@ public class AccountIntegrationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task GetAccountBalance_ValidAccountId_ReturnsBalance()
+    public async Task GetAccount_ValidAccountId_ReturnsAccount()
     {
+        // Arrange
         var customer = Customer.Create("John", "Doe", "john.doe@example.com").Value!;
         var account = Account.Create("12345678901234", customer.Id, 500m).Value!;
 
@@ -83,32 +81,49 @@ public class AccountIntegrationTests : IntegrationTestBase
             await dbContext.SaveChangesAsync();
         }
 
-        var query = new GetAccountBalanceQuery(account.Id, customer.Id);
+        var query = new GetAccountQuery(account.Id, customer.Id);
 
         // Act
-        using var scope = ServiceProvider.CreateScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var result = await mediator.Send(query);
+        var result = await SendRequestAsync<GetAccountQuery, Account>(query);
 
         // Assert
         Assert.True(result.IsSuccess);
-        Assert.Equal(500m, result.Value);
+        Assert.NotNull(result);
+        Assert.Equal(account.Id, result.Value!.Id);
+        Assert.Equal(account.AccountNumber, result.Value.AccountNumber);
+        Assert.Equal(account.CustomerId, result.Value.CustomerId);
+        Assert.Equal(account.Balance, result.Value.Balance);
     }
 
     [Fact]
-    public async Task GetAccountBalance_InvalidAccountId_ReturnsFailure()
+    public async Task GetAccount_InvalidAccountId_ReturnsFailure()
     {
         // Arrange
-        var query = new GetAccountBalanceQuery(Guid.NewGuid(), Guid.NewGuid());
+        var query = new GetAccountQuery(Guid.NewGuid(), Guid.NewGuid());
 
         // Act
-        using var scope = ServiceProvider.CreateScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var result = await mediator.Send(query);
+        var result = await SendRequestAsync<GetAccountQuery, Guid>(query);
 
         // Assert
         Assert.False(result.IsSuccess);
         Assert.NotNull(result.Error);
         Assert.Equal("Account.NotFound", result.Error.Code);
+    }
+
+    private async Task<Result<TResponse>> SendRequestAsync<TRequest, TResponse>(TRequest request)
+    {
+        if (request == null) // Ensure the request is not null
+            throw new ArgumentNullException(nameof(request));
+
+        using var scope = ServiceProvider.CreateScope();
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+        var result = await mediator.Send(request); // Send the request (command or query)
+        if (result is Result<TResponse> typedResult)
+        {
+            return typedResult;
+        }
+
+        throw new InvalidOperationException("Unexpected result type returned from mediator."); // Ensure a valid result is always returned
     }
 }

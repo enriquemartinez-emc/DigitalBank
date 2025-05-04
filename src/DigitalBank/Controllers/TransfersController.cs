@@ -1,11 +1,13 @@
 ﻿using DigitalBank.Application.Features.Transfers;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalBank.Controllers;
 
 [ApiController]
 [Route("api/transfers")]
+[Authorize]
 public class TransfersController : ControllerBase
 {
     private readonly ISender _sender;

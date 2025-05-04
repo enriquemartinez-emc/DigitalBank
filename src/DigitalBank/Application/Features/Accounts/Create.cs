@@ -48,7 +48,7 @@ public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand,
         if (!accountResult.IsSuccess)
             return Result.Failure<Guid>(accountResult.Error!);
 
-        _context.Accounts.Add(accountResult.Value!);
+        await _context.Accounts.AddAsync(accountResult.Value!);
         await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success(accountResult.Value!.Id);

@@ -1,11 +1,13 @@
 ﻿using DigitalBank.Application.Features.Accounts;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalBank.Controllers;
 
 [ApiController]
 [Route("api/customers")]
+[Authorize]
 public class AccountsController : ControllerBase
 {
     private readonly ISender _sender;

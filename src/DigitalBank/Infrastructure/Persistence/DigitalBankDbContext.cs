@@ -1,4 +1,5 @@
-﻿using DigitalBank.Domain.Entities;
+﻿using DigitalBank.Domain.Common;
+using DigitalBank.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigitalBank.Infrastructure.Persistence;
@@ -10,6 +11,7 @@ public class DigitalBankDbContext : DbContext
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<Card> Cards { get; set; }
     public DbSet<Transfer> Transfers { get; set; }
+    public DbSet<User> Users { get; set; }
 
     public DigitalBankDbContext(DbContextOptions<DigitalBankDbContext> options) : base(options) { }
 

@@ -3,7 +3,10 @@ using DigitalBank.Infrastructure.Exceptions;
 using DigitalBank.Infrastructure.Persistence;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DigitalBank;
 
@@ -15,6 +18,7 @@ public static class ConfigureServices
         builder.AddSwagger();
         builder.AddCors();
         builder.AddDatabase();
+        builder.AddJwtAuthentication();
     }
 
     private static void AddDigitalBank(this WebApplicationBuilder builder)
@@ -45,7 +49,8 @@ public static class ConfigureServices
             {
                 policy.WithOrigins("http://localhost:4200")
                     .AllowAnyMethod()
-                    .AllowAnyHeader();
+                    .AllowAnyHeader()
+                    .AllowCredentials();
             });
         });
     }
@@ -56,5 +61,43 @@ public static class ConfigureServices
         {
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
         });
+    }
+
+    private static void AddJwtAuthentication(this WebApplicationBuilder builder)
+    {
+        var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+        var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
+        builder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+
+                // Custom token retrieval from cookie
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // Extract token from authToken cookie
+                        var token = context.Request.Cookies["authToken"];
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+
+        builder.Services.AddAuthorization();
     }
 }
