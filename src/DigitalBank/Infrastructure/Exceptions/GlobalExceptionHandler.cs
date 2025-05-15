@@ -1,5 +1,6 @@
 ﻿using DigitalBank.Domain.Common.Errors;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalBank.Infrastructure.Exceptions;
 
@@ -10,16 +11,28 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        var error = exception switch
+        (ProblemDetails, int) result = exception switch
         {
-            InvalidOperationException => new Error("Operation.Invalid", exception.Message),
-            _ => new Error("Server.Error", "An unexpected error occurred")
+            ValidationException validationException => (MapValidationProblemDetails(validationException.ProblemDetails), StatusCodes.Status400BadRequest),
+            InvalidOperationException => (new Error("Operation.Invalid", exception.Message).ToProblemDetails(StatusCodes.Status400BadRequest), StatusCodes.Status400BadRequest),
+            _ => (new Error("Server.Error", "An unexpected error occurred").ToProblemDetails(StatusCodes.Status500InternalServerError), StatusCodes.Status500InternalServerError)
         };
 
-        var problemDetails = error.ToProblemDetails(StatusCodes.Status500InternalServerError);
-        httpContext.Response.StatusCode = problemDetails.Status!.Value;
+        (ProblemDetails problemDetails, int statusCode) = result;
 
+        httpContext.Response.StatusCode = statusCode;
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
         return true;
+    }
+
+    private static ProblemDetails MapValidationProblemDetails(Validation.ValidationProblemDetails validationProblemDetails)
+    {
+        return new ProblemDetails
+        {
+            Title = validationProblemDetails.Title,
+            Status = validationProblemDetails.Status,
+            Detail = validationProblemDetails.Detail,
+            Extensions = { ["errors"] = validationProblemDetails.Errors }
+        };
     }
 }

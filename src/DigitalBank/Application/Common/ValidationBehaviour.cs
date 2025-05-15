@@ -1,5 +1,5 @@
 ﻿using DigitalBank.Domain.Common;
-using DigitalBank.Domain.Common.Errors;
+using DigitalBank.Infrastructure.Validation;
 using FluentValidation;
 using MediatR;
 
@@ -32,18 +32,21 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
 
         if (failures.Count != 0)
         {
-            var error = new Error("Validation.Failed", string.Join("; ", failures.Select(f => f.ErrorMessage)));
+            var validationErrors = failures
+                .GroupBy(f => f.PropertyName)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(f => f.ErrorMessage).ToList()
+                );
 
-            // Handle both Result and Result<T> cases
-            if (typeof(TResponse).IsGenericType && typeof(TResponse).GetGenericTypeDefinition() == typeof(Result<>))
+            var errorDetails = new ValidationProblemDetails
             {
-                var genericArgument = typeof(TResponse).GetGenericArguments()[0];
-                var failureMethod = typeof(Result).GetMethod(nameof(Result.Failure), 1, [typeof(Error)])!
-                    .MakeGenericMethod(genericArgument);
-                return (TResponse)failureMethod.Invoke(null, [error])!;
-            }
+                Title = "Validation Failed",
+                Status = 400,
+                Errors = validationErrors
+            };
 
-            return (TResponse)Result.Failure(error);
+            throw new Infrastructure.Exceptions.ValidationException(errorDetails);
         }
 
         return await next(cancellationToken);
