@@ -1,5 +1,6 @@
 ﻿using DigitalBank.Application.Features.Auth;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalBank.Controllers;
@@ -52,5 +53,19 @@ public class AuthController : ControllerBase
         });
 
         return Ok(new { message = "Logout successful" });
+    }
+
+    [Authorize]
+    [HttpGet("status")]
+    public IActionResult CheckAuthStatus()
+    {
+        var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+
+        if (!isAuthenticated)
+        {
+            return Unauthorized(new { message = "User is not authenticated" });
+        }
+
+        return Ok(new { isAuthenticated = true, message = "User is authenticated" });
     }
 }
