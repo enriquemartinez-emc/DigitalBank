@@ -11,6 +11,7 @@ public class Customer
     public string LastName { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
     public List<Account> Accounts { get; private set; } = [];
+    public string FullName => $"{FirstName} {LastName}";
 
     private Customer() { } // For EF Core
 
