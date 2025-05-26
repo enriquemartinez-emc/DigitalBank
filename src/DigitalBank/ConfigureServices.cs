@@ -38,7 +38,7 @@ public static class ConfigureServices
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
-             options.SwaggerDoc("v1", new OpenApiInfo
+            options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "DigitalBank API",
                 Version = "v1",
@@ -73,7 +73,7 @@ public static class ConfigureServices
             });
 
             options.SchemaGeneratorOptions.SupportNonNullableReferenceTypes = false;
-            options.CustomSchemaIds(type => type.Name); 
+            options.CustomSchemaIds(type => type.Name);
             options.InferSecuritySchemes();
         });
     }
@@ -84,7 +84,7 @@ public static class ConfigureServices
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:4200", "http://localhost:5173")
+                policy.WithOrigins("http://localhost:4200", "http://localhost:5173", "http://localhost:3000")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
